@@ -13,7 +13,7 @@ A multi-container blog platform using Docker, Node.js, PostgreSQL, Redis, and Ng
 ## Quick Start
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/blog-platform.git
+git clone https://github.com/chetima12/blog-platform.git
 cd blog-platform
 
 # Setup
