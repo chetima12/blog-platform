@@ -12,9 +12,9 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - DB_HOST=postgres
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER:-bloguser}
+      - DB_PASSWORD=${DB_PASSWORD:-blogpass}
+      - DB_NAME=${DB_NAME:-blogdb}
       - REDIS_HOST=redis
     depends_on:
       postgres:
@@ -49,9 +49,9 @@ services:
     container_name: blog-postgres
     restart: unless-stopped
     environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER:-bloguser}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-blogpass}
+      - POSTGRES_DB=${DB_NAME:-blogdb}
     ports:
       - "5432:5432"
     volumes:
@@ -60,7 +60,7 @@ services:
     networks:
       - blog-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-bloguser} -d ${DB_NAME:-blogdb}"]
       interval: 10s
       timeout: 5s
       retries: 5

@@ -9,10 +9,10 @@ const PORT = process.env.PORT || 3000;
 
 // Database connection
 const pool = new Pool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  host: process.env.DB_HOST || 'postgres',
+  user: process.env.DB_USER || 'bloguser',
+  password: process.env.DB_PASSWORD || 'blogpass',
+  database: process.env.DB_NAME || 'blogdb',
   port: 5432,
 });
 
@@ -22,11 +22,12 @@ const redisClient = redis.createClient({
 });
 
 redisClient.on('error', (err) => console.error('Redis Error:', err));
+redisClient.connect();
 
 // Middleware
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -61,10 +62,6 @@ app.get('/', async (req, res) => {
 
 app.post('/posts', async (req, res) => {
   const { title, content } = req.body;
-
-  if (!title || !content) {
-    return res.status(400).send('Title and content are required');
-  }
   
   try {
     await pool.query(
@@ -82,37 +79,17 @@ app.post('/posts', async (req, res) => {
   }
 });
 
-app.get('/health', async (req, res) => {
-  const services = {
-    database: 'disconnected',
-    redis: redisClient.isOpen ? 'connected' : 'disconnected'
-  };
-
-  try {
-    await pool.query('SELECT 1');
-    services.database = 'connected';
-  } catch (error) {
-    console.error('Health check database error:', error);
-  }
-
+app.get('/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
-    services
+    services: {
+      database: pool._connected ? 'connected' : 'disconnected',
+      redis: redisClient.isOpen ? 'connected' : 'disconnected'
+    }
   });
 });
 
-const startServer = async () => {
-  try {
-    await redisClient.connect();
-    console.log('✅ Connected to Redis');
-  } catch (error) {
-    console.error('Failed to connect to Redis:', error);
-  }
-
-  app.listen(PORT, () => {
-    console.log(`🚀 Blog app running on port ${PORT}`);
-  });
-};
-
-startServer();
+app.listen(PORT, () => {
+  console.log(`🚀 Blog app running on port ${PORT}`);
+});
