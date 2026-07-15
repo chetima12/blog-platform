@@ -49,9 +49,9 @@ services:
     container_name: blog-postgres
     restart: unless-stopped
     environment:
-      - POSTGRES_USER=${DB_USER:-bloguser}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-blogpass}
-      - POSTGRES_DB=${DB_NAME:-blogdb}
+      - POSTGRES_USER=${DB_USER:-userCH}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-passCH}
+      - POSTGRES_DB=${DB_NAME:-dbCH}
     ports:
       - "5432:5432"
     volumes:
